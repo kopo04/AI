@@ -1,0 +1,23 @@
+import pandas
+df = pandas.read_csv('Suwon.csv', encoding='cp949', skiprows=7)
+df.info()
+df
+
+a = list(range(1, 31 + 1))
+print(a)
+
+df['최고기온(℃)']
+
+import matplotlib.pyplot as plt
+plt.rcParams['axes.unicode_minus'] = False
+
+plt.title('Suwon city change of temperature in March 1999')
+plt.plot(range(1,len(df)+1), df['최고기온(℃)'], label='max', c='r')
+plt.plot(range(1,len(df)+1), df['평균기온(℃)'], label='avg', c='g')
+plt.plot(range(1,len(df)+1), df['최저기온(℃)'], label='min', c='b')
+plt.xlabel('Date')
+plt.ylabel('Temp')
+plt.legend()
+#plt.savefig('Suwon.png')
+plt.show()
+  
