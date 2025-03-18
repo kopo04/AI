@@ -1,0 +1,41 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pylab as plt
+from statsmodels.formula.api import ols
+
+# 데이터 생성 (20개 샘플)
+price = [174000, 156500, 168000, 145000, 160000, 172000, 158000, 165000, 149000, 155000,
+         162000, 170000, 148000, 157000, 159500, 167000, 100000, 139500, 160500, 150000]
+size = [152, 118, 118, 85, 130, 145, 110, 120, 100, 105, 
+        135, 140, 95, 123, 128, 130, 59, 128, 128, 115]
+age = [19, 19, 19, 19, 15, 17, 16, 18, 14, 15, 
+       18, 17, 16, 15, 14, 13, 11, 11, 11, 11]
+kindergarten = [22, 22, 22, 22, 20, 21, 19, 18, 23, 21, 
+                20, 21, 22, 23, 19, 18, 4, 4, 4, 4]
+elementarySchool = [10, 10, 10, 10, 11, 9, 8, 12, 10, 9, 
+                     11, 12, 10, 11, 9, 8, 12, 12, 12, 12]
+busStop = [13, 13, 13, 13, 14, 12, 15, 16, 10, 11, 
+           12, 14, 15, 16, 13, 11, 29, 29, 29, 29]
+hospital = [19, 19, 19, 19, 18, 17, 16, 20, 21, 22, 
+            19, 18, 17, 19, 16, 15, 14, 14, 14, 14]
+mart = [19, 19, 19, 19, 18, 17, 16, 20, 21, 22, 
+        19, 18, 17, 19, 16, 15, 14, 14, 14, 14]
+
+# 데이터프레임 생성
+data = {
+    'price': price,
+    'size': size,
+    'age': age,
+    'kindergarten': kindergarten,
+    'elementarySchool': elementarySchool,
+    'busStop': busStop,
+    'hospital': hospital,
+    'mart': mart
+}
+df = pd.DataFrame(data)
+
+# 선형 회귀 분석
+fit = ols('price ~ size + age + kindergarten + elementarySchool + busStop + hospital + mart', data=df).fit()
+
+# 결과 출력
+print(fit.summary())
