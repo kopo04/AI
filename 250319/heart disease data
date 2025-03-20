@@ -1,0 +1,79 @@
+# pandas 라이브러리를 사용하여 심장 질환 데이터셋을 불러오기
+import pandas as pd
+
+# 데이터셋의 컬럼(속성) 이름을 정의
+col_Names = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 
+             'exang', 'oldpeak', 'slope', 'ca', 'thal', 'label']
+
+# UCI 머신러닝 저장소에서 심장 질환 데이터셋을 불러와 데이터프레임 생성
+df_heart = pd.read_csv(
+    'http://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data', 
+    names=col_Names
+)
+
+# 데이터프레임 출력
+df_heart
+
+
+
+# 데이터 전처리: '?' 값을 NaN으로 변환하고, 결측값이 있는 행 삭제
+import numpy as np
+
+# 데이터셋에서 '?'를 NaN으로 변경 (데이터 정리)
+df_heart.replace('?', np.nan, inplace=True)
+
+# 결측값이 포함된 행을 제거하여 데이터 정제
+df_heart = df_heart.dropna()
+
+# 정제된 데이터프레임 출력
+df_heart
+
+
+
+# 데이터를 학습 세트와 테스트 세트로 분할
+from sklearn.model_selection import train_test_split
+
+# 데이터셋을 70% 학습 데이터, 30% 테스트 데이터로 분할
+# stratify=df_heart['label'] → 'label' 클래스 비율을 유지하며 데이터를 나눔
+train, test = train_test_split(df_heart, test_size=0.3, random_state=0, stratify=df_heart['label'])
+
+# 입력 데이터(X)와 정답 데이터(Y) 분리
+train_X = train[train.columns[:13]]  # 첫 13개 컬럼(특성)
+train_Y = train[train.columns[13:]]  # 마지막 1개 컬럼(레이블)
+test_X = test[test.columns[:13]]  # 테스트 데이터 입력(X)
+test_Y = test[test.columns[13:]]  # 테스트 데이터 정답(Y)
+
+
+# 심장 질환 데이터의 'label' 분포를 히스토그램으로 시각화
+import matplotlib.pyplot as plt
+
+plt.hist(df_heart.label, bins=4)  # 'label' 데이터를 4개의 구간(bins)으로 나누어 히스토그램 생성
+
+
+# 상관 행렬(Feature Correlation Matrix)을 히트맵으로 시각화
+
+import seaborn as sns
+
+# 데이터프레임의 특성 간 상관계수(correlation coefficient)를 계산하여 히트맵 생성
+ax = sns.heatmap(df_heart.corr(), annot=True, annot_kws={"size": 6})  
+
+plt.show()  # 히트맵 출력
+
+
+
+# 랜덤 포레스트(Random Forest) 분류 모델을 사용하여 심장 질환 예측
+
+from sklearn.ensemble import RandomForestClassifier  # 랜덤 포레스트 분류기
+from sklearn import metrics  # 모델 성능 평가를 위한 metrics 라이브러리
+
+# 랜덤 포레스트 모델 생성 (n_estimators=100: 100개의 결정 트리를 사용)
+model = RandomForestClassifier(n_estimators=100)
+
+# 모델 학습 (훈련 데이터 사용)
+model.fit(train_X, train_Y)
+
+# 테스트 데이터에 대한 예측 수행
+pred_RF = model.predict(test_X)
+
+# 모델의 정확도 평가 및 출력
+print('랜덤 포레스트 알고리즘 예측 정확도:', metrics.accuracy_score(pred_RF, test_Y))
