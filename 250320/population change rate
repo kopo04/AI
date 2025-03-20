@@ -1,0 +1,120 @@
+# CSV 파일을 Pandas DataFrame으로 불러오기 (한글 인코딩 cp949 적용)
+import pandas as pd
+df = pd.read_csv('행정구역_시군구_별__성별_인구수.csv', encoding = 'cp949')
+
+# 연도별 인구 증감 계산 후 CSV 파일로 저장
+
+columns = list(df.columns)  # 데이터프레임의 컬럼 리스트 가져오기
+del columns[1]  # 불필요한 두 번째 컬럼 삭제
+
+popDiff = []  # 인구 증감 데이터를 저장할 리스트
+
+# 각 행(지역별)에서 연도별 인구 변화 계산
+for i in range(2, len(df)):  
+    row = [df.loc[i][0]]  # 첫 번째 열(지역명) 추가
+    for j in range(2, len(df.loc[i])):  
+        pop = int(df.loc[i][j]) - int(df.loc[i][j - 1])  # 이전 연도 대비 인구 차이 계산
+        row.append(pop)  
+    popDiff.append(row)  # 계산된 데이터 저장
+
+# 인구 증감 데이터프레임 생성 및 CSV 저장
+dfPopDiff = pd.DataFrame(popDiff, columns=columns)
+dfPopDiff.to_csv('populationDiff.csv', encoding='cp949')  # 한글 인코딩(cp949) 적용하여 저장
+
+
+# 연도별 인구 증감률(%)을 계산 후 CSV 파일로 저장
+
+columns = list(df.columns)  # 데이터프레임의 컬럼 리스트 가져오기
+del columns[1]  # 불필요한 두 번째 컬럼 삭제
+
+popIncreaseRate = []  # 인구 증감률 데이터를 저장할 리스트
+
+# 각 행(지역별)에서 연도별 인구 증감률 계산
+for i in range(2, len(df)):  
+    row = [df.loc[i][0]]  # 첫 번째 열(지역명) 추가
+    for j in range(2, len(df.loc[i])):  
+        pop = float((int(df.loc[i][j]) - int(df.loc[i][j-1])) / int(df.loc[i][j-1])) * 100.0  # 인구 증감률(%) 계산
+        row.append(pop)  
+    popIncreaseRate.append(row)  # 계산된 데이터 저장
+
+# 인구 증감률 데이터프레임 생성 및 CSV 저장
+dfPopIncreaseRate = pd.DataFrame(popIncreaseRate, columns=columns)
+dfPopIncreaseRate.to_csv('populationIncreaseRate.csv', encoding='cp949', index=False)  # 한글 인코딩(cp949) 적용하여 저장
+
+
+
+# CSV 파일(populationDiff.csv)을 읽어와 리스트 형태로 변환
+
+import pandas as pd
+df = pd.read_csv('populationDiff.csv', encoding='cp949')  # 한글 인코딩(cp949) 적용하여 CSV 파일 불러오기
+
+popDiff = []  # 인구 증감 데이터를 저장할 리스트
+
+# 데이터프레임의 각 행을 리스트로 변환하여 저장
+for i in range(0, len(df)):
+    popDiff.append(list(df.loc[i]))  
+
+
+# x축에 표시할 연월(YYYYMM) 값 생성
+x_values = []
+for i in range(1, 7):
+    yyyymm = '20220' + str(i)  # 2022년 1월~6월 형식으로 생성
+    x_values.append(yyyymm)
+
+# 월별 인구 증감을 지역별 변수에 할당
+y_seoul = popDiff[0][108:114]  # 서울
+y_bs = popDiff[1][108:114]     # 부산
+y_dg = popDiff[2][108:114]     # 대구
+y_ic = popDiff[3][108:114]     # 인천
+y_gj = popDiff[4][108:114]     # 광주
+y_dj = popDiff[5][108:114]     # 대전
+y_us = popDiff[6][108:114]   # 울산
+y_sj = popDiff[7][108:114]   # 세종
+y_gg = popDiff[8][108:114]   # 경기
+y_gw = popDiff[9][108:114]   # 강원
+y_cb = popDiff[10][108:114]  # 충북
+y_cn = popDiff[11][108:114]  # 충남
+y_jb = popDiff[12][108:114]  # 전북
+y_jn = popDiff[13][108:114]  # 전남
+y_gb = popDiff[14][108:114]  # 경북
+y_gn = popDiff[15][108:114]  # 경남
+y_jj = popDiff[16][108:114]  # 제주
+
+# 월별 지역별 인구 증감 데이터를 시각화 (막대 그래프)
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.figure(figsize=(12, 8))  # 그래프 크기 설정
+ax = plt.subplot()
+bar_width = 0.05  # 막대 너비 설정
+
+x = np.arange(6)  # x축 (6개월 데이터)
+ax.set_xticks(x)  # x축 위치 설정
+ax.set_xticklabels(x_values)  # x축 라벨 지정 (연도+월)
+
+# 지역별 막대 그래프 생성 (각 지역마다 막대 위치 이동)
+p1 = plt.bar(x, y_seoul, bar_width)
+p2 = plt.bar(x + bar_width, y_bs, bar_width)
+p3 = plt.bar(x + bar_width*2, y_dg, bar_width)
+p4 = plt.bar(x + bar_width*3, y_ic, bar_width)
+p5 = plt.bar(x + bar_width*4, y_gj, bar_width)
+p6 = plt.bar(x + bar_width*5, y_dj, bar_width)
+p7 = plt.bar(x + bar_width*6, y_us, bar_width)
+p8 = plt.bar(x + bar_width*7, y_sj, bar_width)
+p9 = plt.bar(x + bar_width*8, y_gg, bar_width)
+p10 = plt.bar(x + bar_width*9, y_gw, bar_width)
+p11 = plt.bar(x + bar_width*10, y_cb, bar_width)
+p12 = plt.bar(x + bar_width*11, y_cn, bar_width)
+p13 = plt.bar(x + bar_width*12, y_jb, bar_width)
+p14 = plt.bar(x + bar_width*13, y_jn, bar_width)
+p15 = plt.bar(x + bar_width*14, y_gb, bar_width)
+p16 = plt.bar(x + bar_width*15, y_gn, bar_width)
+p17 = plt.bar(x + bar_width*16, y_jj, bar_width)
+
+# 범례 추가 (지역명 표시)
+plt.legend(['Seoul', 'Busan', 'Daegu', 'Incheon', 'Gwangju', 'Daejeon', 'Ulsan',
+            'Sejong', 'Gyeonggi', 'Gangwon', 'Chungbuk', 'Chungnam', 'Jeonbuk',
+            'Jeonnam', 'Gyeongbuk', 'Gyeongnam', 'Jeju'], loc=(1.0, 0))
+
+plt.show()  # 그래프 출력
